@@ -18,7 +18,7 @@ apply plugin: 'io.spring.dependency-management'
 
 bootJar {
     baseName = 'HBaseInteract'
-    version =  '0.1.0'
+    version = '0.1.0'
 }
 
 repositories {
@@ -29,9 +29,11 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-test"){
+    compile("org.springframework.boot:spring-boot-starter-test") {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
     }
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8'
+
     compile group: 'org.apache.hbase', name: 'hbase', version: '1.2.7'
     compile group: 'org.apache.hbase', name: 'hbase-client', version: '1.2.7'
     testCompile("junit:junit")
