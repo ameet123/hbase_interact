@@ -1,6 +1,7 @@
-package com.anthem.voyager;
+package com.anthem.voyager.service;
 
 
+import com.anthem.voyager.config.AppProperties;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -20,14 +21,9 @@ import java.util.stream.Collectors;
 @Service
 public class DBInteraction {
     private static final Logger LOGGER = LoggerFactory.getLogger(DBInteraction.class);
-    private final String COL_NAME = "sanity_col";
-    private String USER = "AF55267@DEVAD.WELLPOINT.COM";
-    private String TABLE_NAME = "dv_hb_bdfrawz_nogbd_r1a_wh:voyager_dq";
-    private String KEYTAB = "hbase_interact.keytab";
     private Table voyagerDQTable;
     private Configuration conf;
     private Connection conn;
-    private String COL_FAMILY = "all_cf";
 
     /**
      * do enable kerberos debug, add this
@@ -46,23 +42,37 @@ public class DBInteraction {
         conf.set("hbase.security.authentication", "kerberos");
         try {
             UserGroupInformation.setConfiguration(conf);
-            UserGroupInformation.loginUserFromKeytab(USER, DBInteraction.class.getResource("/" + KEYTAB)
+            UserGroupInformation.loginUserFromKeytab(AppProperties.USER, DBInteraction.class.getResource("/" +
+                    AppProperties.KEYTAB)
                     .getPath());
             conn = ConnectionFactory.createConnection(conf);
             LOGGER.debug("Successfully created connection");
-            voyagerDQTable = conn.getTable(TableName.valueOf(TABLE_NAME));
+            voyagerDQTable = conn.getTable(TableName.valueOf(AppProperties.TABLE_NAME));
             LOGGER.info("Table handle:{}", voyagerDQTable.getTableDescriptor().getNameAsString());
         } catch (IOException e) {
             LOGGER.error("Err connecting to Hbase", e);
             throw new RuntimeException(e);
         }
+    }
 
+    public void checkAndPut(List<String> keys) {
+        if (keys == null || keys.isEmpty()) {
+            return;
+        }
+        LOGGER.info(">>Check count:{}", keys.size());
+        List<String> toDo = gets(keys);
+        if (toDo == null || toDo.isEmpty()) {
+            LOGGER.info("No rows to insert, bailing...");
+            return;
+        }
+        LOGGER.info(">>Insert Count:{}", toDo.size());
+        insert(toDo);
     }
 
     public void insert(List<String> rowKeys) {
         List<Put> puts = rowKeys.parallelStream().map(key -> {
             Put p = new Put(key.getBytes());
-            p.addColumn(COL_FAMILY.getBytes(), COL_NAME.getBytes(), null);
+            p.addColumn(AppProperties.COL_FAMILY.getBytes(), AppProperties.COL_NAME.getBytes(), null);
             return p;
         }).collect(Collectors.toList());
         LOGGER.info("Total records in put:{}", puts.size());
@@ -77,20 +87,19 @@ public class DBInteraction {
         LOGGER.info("{} records inserted in:{} ms.", rowKeys.size(), stopwatch.getTime(TimeUnit.MILLISECONDS));
     }
 
-    public void gets(List<String> rowKeys) {
+    public List<String> gets(List<String> rowKeys) {
         List<Get> gets = rowKeys.parallelStream().map(key -> new Get(key.getBytes())).collect(Collectors.toList());
         LOGGER.info("Total records in get:{}", gets.size());
         StopWatch stopwatch = new StopWatch();
         stopwatch.start();
         boolean[] existList;
+        List<String> toDo = new ArrayList<>();
         try {
             existList = voyagerDQTable.existsAll(gets);
             stopwatch.stop();
             int[] validInvalidCnt = validInvalidCount(existList);
             LOGGER.info("-->Final: valid:{} invalid:{} in:{} ms.", validInvalidCnt[0], validInvalidCnt[1],
                     stopwatch.getTime(TimeUnit.MILLISECONDS));
-
-            List<String> toDo = new ArrayList<>();
             for (int i = 0; i < existList.length; i++) {
                 if (!existList[i]) {
                     toDo.add(rowKeys.get(i));
@@ -101,6 +110,7 @@ public class DBInteraction {
         } catch (IOException e) {
             LOGGER.error("IO Error", e);
         }
+        return toDo;
     }
 
     private int[] validInvalidCount(boolean[] existList) {
@@ -114,5 +124,4 @@ public class DBInteraction {
         }
         return new int[]{valid, invalid};
     }
-
 }
