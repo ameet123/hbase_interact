@@ -70,7 +70,7 @@ public class FileProcessor {
     /**
      * @param junkCountPercent number of afke records to create as a percentage of valid records
      */
-    public List<String> queryFile(int junkCountPercent) {
+    public DBInteraction.Pair queryFile(int junkCountPercent) {
         try {
             try (Stream<String> stream = Files.lines(dataPath)) {
                 List<String> keys = stream.collect(Collectors.toList());
@@ -81,11 +81,12 @@ public class FileProcessor {
         } catch (IOException e) {
             LOGGER.error("Err: querying", e);
         }
-        return new ArrayList<>();
+        return new DBInteraction.Pair(new ArrayList<String>(), new ArrayList<String>());
     }
 
     public void queryAndPut(int junkCountPercent) {
-        List<String> toDo = queryFile(junkCountPercent);
+        DBInteraction.Pair toDoAndNotToDo = queryFile(junkCountPercent);
+        List<String> toDo = toDoAndNotToDo.toDo;
         dbInteraction.insert(toDo);
     }
 }
