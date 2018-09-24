@@ -1,0 +1,38 @@
+
+spring:
+  profiles:
+    active: ameet
+---
+spring:
+  profiles: ameet
+my:
+    krb: "C:\\Users\\AF55267\\Documents\\anthem\\source\\hbase_interact\\src\\main\\resources\\krb5.conf"
+    keytab: "C:\\Users\\AF55267\\Documents\\anthem\\source\\hbase_interact\\src\\main\\resources\\hbase_interact.keytab"
+    table: "dv_hb_bdfrawz_nogbd_r1a_wh:voyager_dq"
+    small: "C:\\Users\\AF55267\\Documents\\anthem\\source\\hbase_interact\\src\\main\\resources\\sample_hbase.csv"
+    med: "C:\\Users\\AF55267\\Documents\\anthem\\source\\hbase_interact\\src\\main\\resources\\sample_10k_hbase.csv"
+    large: "C:\\Users\\AF55267\\Documents\\anthem\\source\\hbase_interact\\src\\main\\resources\\sample_large_hbase.csv"
+    data: "C:\\Users\\AF55267\\Documents\\anthem\\source\\hbase_interact\\src\\main\\resources\\sample_hbase.csv"
+    bucketSize: 5000
+    threadPoolSize: 6
+    thresholdSec: 5
+    backpressure: 50
+    threadPrefix: "hbaseRx-%d"
+    user: "AF55267@DEVAD.WELLPOINT.COM"
+    column: "sanity_col"
+---
+spring:
+  profiles: dev
+my:
+    krb: /home/af55267/app/hbase_interact/src/main/resources/krb5.conf
+    keytab: /home/af55267/app/hbase_interact/src/main/resources/hbase_interact.keytab
+    table: "dv_hb_bdfrawz_nogbd_r1a_wh:voyager_dq"
+    small: /home/af55267/app/hbase_interact/src/main/resources/sample_hbase.csv
+    data: /home/af55267/app/hbase_interact/src/main/resources/sample_1m_hbase.csv
+    bucketSize: 5000
+    threadPoolSize: 75
+    thresholdSec: 5
+    backpressure: 75
+    threadPrefix: "hbaseRx-%d"
+    user: "AF55267@DEVAD.WELLPOINT.COM"
+    column: "sanity_col"

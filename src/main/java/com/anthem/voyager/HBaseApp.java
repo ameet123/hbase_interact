@@ -1,6 +1,7 @@
 package com.anthem.voyager;
 
 
+import com.anthem.voyager.config.AppConfig;
 import com.anthem.voyager.service.ConcurrencyService;
 import com.anthem.voyager.service.EventBus;
 import com.anthem.voyager.service.FileProcessor;
@@ -25,7 +26,8 @@ public class HBaseApp {
     private final EventBus bus;
     private final ConcurrencyService service;
     private Random rand = new Random();
-
+@Autowired
+private AppConfig appConfig;
     @Autowired
     public HBaseApp(FileProcessor processor, EventBus bus, ConcurrencyService service) {
         this.processor = processor;
@@ -45,10 +47,13 @@ public class HBaseApp {
             LOGGER.info("Starting HBase interact app.");
             StopWatch watch = new StopWatch();
             watch.start();
+
+            LOGGER.info("From config:{} backpressure:{}",appConfig.getKrb(), appConfig.getBackpressure());
+
             // The actual process
             processor.streamFile();
 
-//            processor.queryAndPut(10);
+
             closeMe();
             watch.stop();
             LOGGER.info(">>Completed ALL in:{}", watch.getTime(TimeUnit.SECONDS));

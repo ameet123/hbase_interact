@@ -1,6 +1,7 @@
 package com.anthem.voyager.service;
 
 
+import com.anthem.voyager.config.AppConfig;
 import com.anthem.voyager.config.AppProperties;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hadoop.conf.Configuration;
@@ -10,6 +11,7 @@ import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -22,30 +24,29 @@ import java.util.stream.Collectors;
 public class DBInteraction {
     private static final Logger LOGGER = LoggerFactory.getLogger(DBInteraction.class);
     private Table voyagerDQTable;
-    private Configuration conf;
-    private Connection conn;
 
     /**
      * do enable kerberos debug, add this
      * System.setProperty("sun.security.krb5.debug", "true");
      */
-    public DBInteraction() {
+    @Autowired
+    public DBInteraction(AppConfig appConfig) {
         LOGGER.info("Create HBase connection and config");
-        System.setProperty("java.security.krb5.conf", AppProperties.KRB5_CONF);
+        System.setProperty("java.security.krb5.conf", appConfig.getKrb());
 
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
             System.setProperty("hadoop.home.dir", "C:\\Users\\AF55267\\Documents\\software\\winutils");
         }
-        conf = HBaseConfiguration.create();
+        Configuration conf = HBaseConfiguration.create();
         conf.addResource(DBInteraction.class.getResource("/hbase-site.xml").getPath());
         conf.set("hadoop.security.authentication", "kerberos");
         conf.set("hbase.security.authentication", "kerberos");
         try {
             UserGroupInformation.setConfiguration(conf);
-            UserGroupInformation.loginUserFromKeytab(AppProperties.USER, AppProperties.KEYTAB);
-            conn = ConnectionFactory.createConnection(conf);
+            UserGroupInformation.loginUserFromKeytab(appConfig.getUser(), appConfig.getKeytab());
+            Connection conn = ConnectionFactory.createConnection(conf);
             LOGGER.debug("Successfully created connection");
-            voyagerDQTable = conn.getTable(TableName.valueOf(AppProperties.TABLE_NAME));
+            voyagerDQTable = conn.getTable(TableName.valueOf(appConfig.getTable()));
             LOGGER.info("Table handle:{}", voyagerDQTable.getTableDescriptor().getNameAsString());
         } catch (IOException e) {
             LOGGER.error("Err connecting to Hbase", e);

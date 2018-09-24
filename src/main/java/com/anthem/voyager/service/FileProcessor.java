@@ -1,6 +1,6 @@
 package com.anthem.voyager.service;
 
-import com.anthem.voyager.config.AppProperties;
+import com.anthem.voyager.config.AppConfig;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
@@ -30,9 +30,10 @@ public class FileProcessor {
     private Path dataPath;
 
     @Autowired
-    public FileProcessor(DBInteraction dbInteraction, EventBus bus) {
+    public FileProcessor(DBInteraction dbInteraction, EventBus bus, AppConfig appConfig) {
         this.dbInteraction = dbInteraction;
-        dataPath = Paths.get(AppProperties.DATA_FILE);
+//        dataPath = Paths.get(AppProperties.DATA_FILE);
+        dataPath = Paths.get(appConfig.getData());
         this.bus = bus;
     }
 

@@ -1,6 +1,6 @@
 package com.anthem.voyager.service;
 
-import com.anthem.voyager.config.AppProperties;
+import com.anthem.voyager.config.AppConfig;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -20,14 +20,14 @@ public class EventBus {
     private PublishSubject<String> safeSource;
 
     @Autowired
-    public EventBus(ConcurrencyService concurrencyService, DBInteraction dbInteraction) {
+    public EventBus(ConcurrencyService concurrencyService, DBInteraction dbInteraction, AppConfig appConfig) {
         LOGGER.info("Bucketing messages:{} at threshold:{} sec.",
-                AppProperties.PUBLISH_BUCKETING_SIZE, AppProperties.PUBLISH_SEC_THRESHOLD);
+                appConfig.getBucketSize(), appConfig.getThresholdSec());
         safeSource = PublishSubject.create();
         // register a subscriber
         Disposable subscription = safeSource.
-                buffer(AppProperties.PUBLISH_SEC_THRESHOLD, TimeUnit.SECONDS, AppProperties.PUBLISH_BUCKETING_SIZE).
-                observeOn(Schedulers.computation(), true, AppProperties.SOURCE_BUFFER_BACKPRESSURE).
+                buffer(appConfig.getThresholdSec(), TimeUnit.SECONDS, appConfig.getBucketSize()).
+                observeOn(Schedulers.computation(), true, appConfig.getBackpressure()).
                 subscribe(stringList ->
                         Observable.just(stringList).
                                 observeOn(Schedulers.from(concurrencyService.executorService())).
