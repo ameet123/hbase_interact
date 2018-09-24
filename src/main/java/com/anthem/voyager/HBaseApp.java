@@ -25,14 +25,15 @@ public class HBaseApp {
     private final FileProcessor processor;
     private final EventBus bus;
     private final ConcurrencyService service;
+    private final AppConfig appConfig;
     private Random rand = new Random();
-@Autowired
-private AppConfig appConfig;
+
     @Autowired
-    public HBaseApp(FileProcessor processor, EventBus bus, ConcurrencyService service) {
+    public HBaseApp(FileProcessor processor, EventBus bus, ConcurrencyService service, AppConfig appConfig) {
         this.processor = processor;
         this.bus = bus;
         this.service = service;
+        this.appConfig = appConfig;
     }
 
     public static void main(String[] args) {
@@ -48,7 +49,7 @@ private AppConfig appConfig;
             StopWatch watch = new StopWatch();
             watch.start();
 
-            LOGGER.info("From config:{} backpressure:{}",appConfig.getKrb(), appConfig.getBackpressure());
+            LOGGER.info("From config:{} backpressure:{}", appConfig.getKrb(), appConfig.getBackpressure());
 
             // The actual process
             processor.streamFile();
