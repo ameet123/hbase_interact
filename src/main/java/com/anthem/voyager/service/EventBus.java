@@ -16,9 +16,8 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class EventBus {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventBus.class);
-    private   CompositeDisposable compositeDisposable;
+    private CompositeDisposable compositeDisposable;
     private PublishSubject<String> safeSource;
-    private Disposable subscription;
 
     @Autowired
     public EventBus(ConcurrencyService concurrencyService, DBInteraction dbInteraction) {
@@ -26,8 +25,8 @@ public class EventBus {
                 AppProperties.PUBLISH_BUCKETING_SIZE, AppProperties.PUBLISH_SEC_THRESHOLD);
         safeSource = PublishSubject.create();
         // register a subscriber
-        subscription = safeSource.buffer(AppProperties.PUBLISH_SEC_THRESHOLD, TimeUnit.SECONDS, AppProperties
-                .PUBLISH_BUCKETING_SIZE).
+        Disposable subscription = safeSource.
+                buffer(AppProperties.PUBLISH_SEC_THRESHOLD, TimeUnit.SECONDS, AppProperties.PUBLISH_BUCKETING_SIZE).
                 observeOn(Schedulers.computation(), true, AppProperties.SOURCE_BUFFER_BACKPRESSURE).
                 subscribe(stringList ->
                         Observable.just(stringList).
@@ -46,6 +45,7 @@ public class EventBus {
 
     public void stop() {
         LOGGER.info(">>Stopping the bus");
-        compositeDisposable.dispose();
+        compositeDisposable.clear();
+//        compositeDisposable.dispose();
     }
 }
