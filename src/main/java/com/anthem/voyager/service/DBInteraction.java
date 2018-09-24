@@ -59,7 +59,9 @@ public class DBInteraction {
             return;
         }
         LOGGER.info(">>Check count:{}", keys.size());
-        List<String> toDo = gets(keys);
+        Pair toDoAndNotToDo = gets(keys);
+        List<String> toDo = toDoAndNotToDo.toDo;
+        List<String> notToDo = toDoAndNotToDo.notToDo;
         if (toDo == null || toDo.isEmpty()) {
             LOGGER.info("No rows to insert, bailing...");
             return;
@@ -86,41 +88,41 @@ public class DBInteraction {
         LOGGER.info("{} records inserted in:{} ms.", rowKeys.size(), stopwatch.getTime(TimeUnit.MILLISECONDS));
     }
 
-    public List<String> gets(List<String> rowKeys) {
+    public Pair gets(List<String> rowKeys) {
         List<Get> gets = rowKeys.parallelStream().map(key -> new Get(key.getBytes())).collect(Collectors.toList());
         LOGGER.info("Total records in get:{}", gets.size());
         StopWatch stopwatch = new StopWatch();
         stopwatch.start();
         boolean[] existList;
         List<String> toDo = new ArrayList<>();
+        List<String> notToDo = new ArrayList<>();
         try {
             existList = voyagerDQTable.existsAll(gets);
             stopwatch.stop();
-            int[] validInvalidCnt = validInvalidCount(existList);
-            LOGGER.info("-->Final: valid:{} invalid:{} in:{} ms.", validInvalidCnt[0], validInvalidCnt[1],
-                    stopwatch.getTime(TimeUnit.MILLISECONDS));
             for (int i = 0; i < existList.length; i++) {
                 if (!existList[i]) {
                     toDo.add(rowKeys.get(i));
+                } else {
+                    notToDo.add(rowKeys.get(i));
                 }
             }
-            LOGGER.info("ToDo list size:{}", toDo.size());
+            LOGGER.info("ToDo list:{} NotToDo list:{} in:{} ms.", toDo.size(), notToDo.size(), stopwatch.getTime
+                    (TimeUnit.MILLISECONDS));
 
         } catch (IOException e) {
             LOGGER.error("IO Error", e);
         }
-        return toDo;
+        return new Pair(toDo, notToDo);
     }
 
-    private int[] validInvalidCount(boolean[] existList) {
-        int valid = 0, invalid = 0;
-        for (boolean e : existList) {
-            if (e) {
-                valid++;
-            } else {
-                invalid++;
-            }
+    static class Pair {
+        List<String> toDo;
+        List<String> notToDo;
+
+        Pair(List<String> toDo, List<String> notToDo) {
+            this.toDo = toDo;
+            this.notToDo = notToDo;
         }
-        return new int[]{valid, invalid};
     }
+
 }
