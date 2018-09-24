@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,11 +32,7 @@ public class FileProcessor {
     @Autowired
     public FileProcessor(DBInteraction dbInteraction, EventBus bus) {
         this.dbInteraction = dbInteraction;
-        try {
-            dataPath = Paths.get(this.getClass().getResource(AppProperties.DATA_FILE).toURI());
-        } catch (URISyntaxException e) {
-            LOGGER.error("Err reading file");
-        }
+        dataPath = Paths.get(AppProperties.DATA_FILE);
         this.bus = bus;
     }
 

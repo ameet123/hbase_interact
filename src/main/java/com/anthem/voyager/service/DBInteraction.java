@@ -31,7 +31,7 @@ public class DBInteraction {
      */
     public DBInteraction() {
         LOGGER.info("Create HBase connection and config");
-        System.setProperty("java.security.krb5.conf", DBInteraction.class.getResource("/krb5.conf").getPath());
+        System.setProperty("java.security.krb5.conf", AppProperties.KRB5_CONF);
 
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
             System.setProperty("hadoop.home.dir", "C:\\Users\\AF55267\\Documents\\software\\winutils");
@@ -42,9 +42,7 @@ public class DBInteraction {
         conf.set("hbase.security.authentication", "kerberos");
         try {
             UserGroupInformation.setConfiguration(conf);
-            UserGroupInformation.loginUserFromKeytab(AppProperties.USER, DBInteraction.class.getResource("/" +
-                    AppProperties.KEYTAB)
-                    .getPath());
+            UserGroupInformation.loginUserFromKeytab(AppProperties.USER, AppProperties.KEYTAB);
             conn = ConnectionFactory.createConnection(conf);
             LOGGER.debug("Successfully created connection");
             voyagerDQTable = conn.getTable(TableName.valueOf(AppProperties.TABLE_NAME));
