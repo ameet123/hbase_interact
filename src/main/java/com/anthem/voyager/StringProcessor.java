@@ -67,10 +67,8 @@ public class StringProcessor {
         StringBuilder sb = new StringBuilder();
         for (int[] FIELD_WIDTH : FIELD_WIDTHS) {
             String c = line.substring(FIELD_WIDTH[0], FIELD_WIDTH[1]);
-            LOGGER.debug("{} len:{}", c, c.length());
             sb.append(c);
         }
-        LOGGER.debug("Row key:{}", sb.toString());
         return sb.toString();
     }
 }
