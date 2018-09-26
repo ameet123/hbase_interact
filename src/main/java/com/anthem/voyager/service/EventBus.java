@@ -1,5 +1,6 @@
 package com.anthem.voyager.service;
 
+import com.anthem.voyager.api.QualityApi;
 import com.anthem.voyager.config.AppConfig;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
@@ -20,7 +21,8 @@ public class EventBus {
     private PublishSubject<String> safeSource;
 
     @Autowired
-    public EventBus(ConcurrencyService concurrencyService, DBInteraction dbInteraction, AppConfig appConfig) {
+    public EventBus(ConcurrencyService concurrencyService, DBInteraction dbInteraction, AppConfig appConfig,
+                    QualityApi qualityApi) {
         LOGGER.info("Bucketing messages:{} at threshold:{} sec.",
                 appConfig.getBucketSize(), appConfig.getThresholdSec());
         safeSource = PublishSubject.create();
@@ -33,7 +35,9 @@ public class EventBus {
                                 observeOn(Schedulers.from(concurrencyService.executorService())).
                                 subscribe(strings -> {
                                     LOGGER.info("\t>>Size of message:{}", strings.size());
-                                    dbInteraction.checkAndPut(strings);
+                                    qualityApi.ingest(strings);
+//                                    dbInteraction.checkAndPutKeys(
+//                                            strings.stream().map(String::getBytes).collect(Collectors.toList()));
                                 }));
         compositeDisposable = new CompositeDisposable();
         compositeDisposable.add(subscription);

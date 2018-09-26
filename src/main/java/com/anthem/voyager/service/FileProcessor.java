@@ -32,7 +32,6 @@ public class FileProcessor {
     @Autowired
     public FileProcessor(DBInteraction dbInteraction, EventBus bus, AppConfig appConfig) {
         this.dbInteraction = dbInteraction;
-//        dataPath = Paths.get(AppProperties.DATA_FILE);
         dataPath = Paths.get(appConfig.getData());
         this.bus = bus;
     }
@@ -60,7 +59,7 @@ public class FileProcessor {
         try {
             try (Stream<String> stream = Files.lines(dataPath)) {
                 List<String> keys = stream.collect(Collectors.toList());
-                dbInteraction.insert(keys);
+                dbInteraction.insertByteArray(keys.stream().map(String::getBytes).collect(Collectors.toList()));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -68,25 +67,25 @@ public class FileProcessor {
     }
 
     /**
-     * @param junkCountPercent number of afke records to create as a percentage of valid records
+     * @param junkCountPercent number of fake records to create as a percentage of valid records
      */
-    public DBInteraction.Pair queryFile(int junkCountPercent) {
+    private DBInteraction.PairOfArrays<byte[]> queryFile(int junkCountPercent) {
         try {
             try (Stream<String> stream = Files.lines(dataPath)) {
                 List<String> keys = stream.collect(Collectors.toList());
                 String base = RandomStringUtils.random(10) + "-";
                 IntStream.range(0, Math.round(junkCountPercent * keys.size())).forEach(i -> keys.add(base + i));
-                return dbInteraction.gets(keys);
+                return dbInteraction.keyExists(keys.stream().map(String::getBytes).collect(Collectors.toList()));
             }
         } catch (IOException e) {
             LOGGER.error("Err: querying", e);
         }
-        return new DBInteraction.Pair(new ArrayList<String>(), new ArrayList<String>());
+        return new DBInteraction.PairOfArrays<>(new ArrayList<>(), new ArrayList<Integer>());
     }
 
     public void queryAndPut(int junkCountPercent) {
-        DBInteraction.Pair toDoAndNotToDo = queryFile(junkCountPercent);
-        List<String> toDo = toDoAndNotToDo.toDo;
-        dbInteraction.insert(toDo);
+        DBInteraction.PairOfArrays<byte[]> toDoAndNotToDo = queryFile(junkCountPercent);
+        List<byte[]> toDo = toDoAndNotToDo.toDo;
+        dbInteraction.insertByteArray(toDo);
     }
 }

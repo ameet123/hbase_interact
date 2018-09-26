@@ -21,6 +21,15 @@ public class AppConfig {
     private int backpressure;
     private String data;
     private String user;
+    private String outputDir;
+
+    public String getOutputDir() {
+        return outputDir;
+    }
+
+    public void setOutputDir(String outputDir) {
+        this.outputDir = outputDir;
+    }
 
     public String getUser() {
         return user;

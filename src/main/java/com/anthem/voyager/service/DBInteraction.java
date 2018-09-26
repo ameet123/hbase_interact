@@ -54,25 +54,34 @@ public class DBInteraction {
         }
     }
 
-    public void checkAndPut(List<String> keys) {
+    /**
+     * based on the row keys, perform an isExist check
+     * what is not present, insert
+     * what is present, return as byte[]
+     *
+     * @param keys byte[] of keys
+     * @return byte[] of what is duplicate.
+     */
+    public List<Integer> checkAndPutKeys(List<byte[]> keys) {
         if (keys == null || keys.isEmpty()) {
-            return;
+            return new ArrayList<>();
         }
         LOGGER.info(">>Check count:{}", keys.size());
-        Pair toDoAndNotToDo = gets(keys);
-        List<String> toDo = toDoAndNotToDo.toDo;
-        List<String> notToDo = toDoAndNotToDo.notToDo;
-        if (toDo == null || toDo.isEmpty()) {
+        PairOfArrays<byte[]> toDoAndNotToDo = keyExists(keys);
+        List<byte[]> toDo = toDoAndNotToDo.toDo;
+        List<Integer> notToDo = toDoAndNotToDo.notToDo;
+        if (toDo != null && !toDo.isEmpty()) {
+            LOGGER.info(">>Insert Count:{}", toDo.size());
+            insertByteArray(toDo);
+        } else {
             LOGGER.info("No rows to insert, bailing...");
-            return;
         }
-        LOGGER.info(">>Insert Count:{}", toDo.size());
-        insert(toDo);
+        return notToDo;
     }
 
-    public void insert(List<String> rowKeys) {
-        List<Put> puts = rowKeys.parallelStream().map(key -> {
-            Put p = new Put(key.getBytes());
+    public void insertByteArray(List<byte[]> rowKeys) {
+        List<Put> puts = rowKeys.parallelStream().map(r -> {
+            Put p = new Put(r);
             p.addColumn(AppProperties.COL_FAMILY.getBytes(), AppProperties.COL_NAME.getBytes(), null);
             return p;
         }).collect(Collectors.toList());
@@ -88,14 +97,15 @@ public class DBInteraction {
         LOGGER.info("{} records inserted in:{} ms.", rowKeys.size(), stopwatch.getTime(TimeUnit.MILLISECONDS));
     }
 
-    public Pair gets(List<String> rowKeys) {
-        List<Get> gets = rowKeys.parallelStream().map(key -> new Get(key.getBytes())).collect(Collectors.toList());
+    public PairOfArrays<byte[]> keyExists(List<byte[]> rowKeys) {
+        List<Get> gets = rowKeys.stream().map(Get::new).collect(Collectors.toList());
         LOGGER.info("Total records in get:{}", gets.size());
+        List<byte[]> toDo = new ArrayList<>();
+        List<byte[]> notToDo = new ArrayList<>();
         StopWatch stopwatch = new StopWatch();
         stopwatch.start();
         boolean[] existList;
-        List<String> toDo = new ArrayList<>();
-        List<String> notToDo = new ArrayList<>();
+        List<Integer> duplicateRecIndexes = new ArrayList<>();
         try {
             existList = voyagerDQTable.existsAll(gets);
             stopwatch.stop();
@@ -103,6 +113,7 @@ public class DBInteraction {
                 if (!existList[i]) {
                     toDo.add(rowKeys.get(i));
                 } else {
+                    duplicateRecIndexes.add(i);
                     notToDo.add(rowKeys.get(i));
                 }
             }
@@ -112,17 +123,16 @@ public class DBInteraction {
         } catch (IOException e) {
             LOGGER.error("IO Error", e);
         }
-        return new Pair(toDo, notToDo);
+        return new PairOfArrays<>(toDo, duplicateRecIndexes);
     }
 
-    static class Pair {
-        List<String> toDo;
-        List<String> notToDo;
+    static class PairOfArrays<T> {
+        List<T> toDo;
+        List<Integer> notToDo;
 
-        Pair(List<String> toDo, List<String> notToDo) {
+        PairOfArrays(List<T> toDo, List<Integer> notToDo) {
             this.toDo = toDo;
             this.notToDo = notToDo;
         }
     }
-
 }

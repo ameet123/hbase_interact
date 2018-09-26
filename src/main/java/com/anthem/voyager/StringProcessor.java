@@ -1,0 +1,76 @@
+package com.anthem.voyager;
+
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.util.MurmurHash3;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.anthem.voyager.config.AppProperties.FIELD_WIDTHS;
+
+/**
+ * parse string and create field tokens
+ */
+@Component
+public class StringProcessor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StringProcessor.class);
+
+    private MurmurHash3 hashHandle;
+
+    public StringProcessor() {
+        this.hashHandle = new MurmurHash3();
+    }
+
+    public List<Get> buildKeyGet(List<String> keys) {
+        return keys.stream().map(k -> new Get(k.getBytes())).collect(Collectors.toList());
+    }
+
+    public List<Integer> getRowKey(List<String> lines) {
+        return lines.stream().map(s -> hashHandle.hash(s.getBytes())).collect(Collectors.toList());
+    }
+
+    public List<Integer> findFileDupes(List<byte[]> rowKeys) {
+        Set<byte[]> uniq = new HashSet<>();
+        List<Integer> dupes = new ArrayList<>();
+        for (int i = 0; i < rowKeys.size(); i++) {
+            if (!uniq.add(rowKeys.get(i))) {
+                dupes.add(i);
+            }
+        }
+        if (!dupes.isEmpty()) {
+            LOGGER.info(">>File dupes found:{}", dupes.size());
+        }
+        return dupes;
+    }
+
+    /**
+     * ByteBuffer.allocate(4).putInt(hashHandle.hash(s.getBytes())).array()).
+     * collect(Collectors.toList());
+     *
+     * @param lines keys
+     * @return byte[] of keys
+     */
+    public List<byte[]> getRowKeyByteArray(List<String> lines) {
+        return lines.stream().
+                map(s -> ByteBuffer.allocate(4).putInt(hashHandle.hash(buildRowKey(s).getBytes())).array()).
+                collect(Collectors.toList());
+    }
+
+    public String buildRowKey(String line) {
+        StringBuilder sb = new StringBuilder();
+        for (int[] FIELD_WIDTH : FIELD_WIDTHS) {
+            String c = line.substring(FIELD_WIDTH[0], FIELD_WIDTH[1]);
+            LOGGER.debug("{} len:{}", c, c.length());
+            sb.append(c);
+        }
+        LOGGER.debug("Row key:{}", sb.toString());
+        return sb.toString();
+    }
+}
