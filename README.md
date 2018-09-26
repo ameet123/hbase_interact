@@ -13,3 +13,7 @@ Clean out the HBase table,
 hbase shell
 > truncate 'dv_hb_bdfrawz_nogbd_r1a_wh:voyager_dq'
 ```
+
+#### Architecture
+
+![arch](image/arch_hbaseapp.png)

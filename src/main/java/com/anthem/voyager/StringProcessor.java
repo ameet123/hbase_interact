@@ -37,10 +37,10 @@ public class StringProcessor {
     }
 
     public List<Integer> findFileDupes(List<byte[]> rowKeys) {
-        Set<byte[]> uniq = new HashSet<>();
+        Set<Integer> uniq = new HashSet<>();
         List<Integer> dupes = new ArrayList<>();
         for (int i = 0; i < rowKeys.size(); i++) {
-            if (!uniq.add(rowKeys.get(i))) {
+            if (!uniq.add(Util.byteArrayToInt(rowKeys.get(i)))) {
                 dupes.add(i);
             }
         }

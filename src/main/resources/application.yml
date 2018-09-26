@@ -13,7 +13,7 @@ my:
     small: "C:\\Users\\AF55267\\Documents\\anthem\\source\\hbase_interact\\src\\main\\resources\\sample_hbase.csv"
     med: "C:\\Users\\AF55267\\Documents\\anthem\\source\\hbase_interact\\src\\main\\resources\\sample_10k_hbase.csv"
     large: "C:\\Users\\AF55267\\Documents\\anthem\\source\\hbase_interact\\src\\main\\resources\\sample_large_hbase.csv"
-    data: "C:\\Users\\AF55267\\Documents\\anthem\\source\\hbase_interact\\src\\main\\resources\\type4_sample.dat"
+    data: "C:\\Users\\AF55267\\Documents\\anthem\\source\\hbase_interact\\src\\main\\resources\\type4_in_dup.dat"
     outputDir: "C:\\Users\\AF55267\\Documents\\anthem\\source\\hbase_interact\\src\\main\\resources\\output\\"
     bucketSize: 100
     threadPoolSize: 6
