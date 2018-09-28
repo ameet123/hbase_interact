@@ -72,10 +72,8 @@ public class HBaseApp {
      * earlier , we were closing the executor service,
      * service.executorService().shutdown();
      * but no need, the app shuts down ok.
-     * @throws InterruptedException
      */
-    private void closeMe() throws InterruptedException {
-        Thread.sleep(10000);
+    private void closeMe() {
         bus.stop();
     }
 }
