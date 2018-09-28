@@ -1,12 +1,14 @@
 package com.anthem.voyager;
 
+import com.anthem.voyager.util.Util;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.util.MurmurHash3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -23,9 +25,11 @@ public class StringProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(StringProcessor.class);
 
     private MurmurHash3 hashHandle;
+    private HashFunction murmur128Handle;
 
     public StringProcessor() {
         this.hashHandle = new MurmurHash3();
+        this.murmur128Handle = Hashing.murmur3_128();
     }
 
     public List<Get> buildKeyGet(List<String> keys) {
@@ -59,8 +63,9 @@ public class StringProcessor {
      */
     public List<byte[]> getRowKeyByteArray(List<String> lines) {
         return lines.stream().
-                map(s -> ByteBuffer.allocate(4).putInt(hashHandle.hash(buildRowKey(s).getBytes())).array()).
-                collect(Collectors.toList());
+                map(this::buildRowKeyHash).
+//                map(s -> ByteBuffer.allocate(4).putInt(hashHandle.hash(buildRowKey(s).getBytes())).array()).
+        collect(Collectors.toList());
     }
 
     public String buildRowKey(String line) {
@@ -70,5 +75,14 @@ public class StringProcessor {
             sb.append(c);
         }
         return sb.toString();
+    }
+
+    public byte[] buildRowKeyHash(String line) {
+        StringBuilder sb = new StringBuilder();
+        for (int[] FIELD_WIDTH : FIELD_WIDTHS) {
+            String c = line.substring(FIELD_WIDTH[0], FIELD_WIDTH[1]);
+            sb.append(c);
+        }
+        return murmur128Handle.hashString(sb.toString()).asBytes();
     }
 }

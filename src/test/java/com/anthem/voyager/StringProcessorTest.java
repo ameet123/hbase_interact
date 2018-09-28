@@ -1,5 +1,6 @@
 package com.anthem.voyager;
 
+import com.anthem.voyager.util.Util;
 import org.apache.hadoop.hbase.util.MurmurHash3;
 import org.junit.Assert;
 import org.junit.Test;
