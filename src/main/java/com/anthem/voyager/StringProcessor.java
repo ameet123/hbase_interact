@@ -64,8 +64,8 @@ public class StringProcessor {
      */
     public List<byte[]> getRowKeyByteArray(List<String> lines) {
         return lines.stream().
-//                map(this::buildRowKeyHash).
-                map(s -> ByteBuffer.allocate(4).putInt(hashHandle.hash(buildRowKey(s).getBytes())).array()).
+                map(this::buildRowKeyHash).
+//                map(s -> ByteBuffer.allocate(4).putInt(hashHandle.hash(buildRowKey(s).getBytes())).array()).
         collect(Collectors.toList());
     }
 
