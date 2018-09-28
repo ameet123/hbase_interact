@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -63,8 +64,8 @@ public class StringProcessor {
      */
     public List<byte[]> getRowKeyByteArray(List<String> lines) {
         return lines.stream().
-                map(this::buildRowKeyHash).
-//                map(s -> ByteBuffer.allocate(4).putInt(hashHandle.hash(buildRowKey(s).getBytes())).array()).
+//                map(this::buildRowKeyHash).
+                map(s -> ByteBuffer.allocate(4).putInt(hashHandle.hash(buildRowKey(s).getBytes())).array()).
         collect(Collectors.toList());
     }
 
