@@ -30,8 +30,8 @@ my:
     keytab: /home/af55267/app/hbase_interact/src/main/resources/hbase_interact.keytab
     table: "dv_hb_bdfrawz_nogbd_r1a_wh:voyager_dq"
     small: /home/af55267/app/hbase_interact/src/main/resources/sample_hbase.csv
-    data: /home/af55267/app/hbase_interact/src/main/resources/sample_1m_hbase.csv
-    outputDir: /home/af55267/app/hbase_interact/src/main/resources/output
+    data: /home/af55267/app/hbase_interact/data/Sample_220K_unique.txt
+    outputDir: /home/af55267/app/hbase_interact/data/output
     bucketSize: 5000
     threadPoolSize: 75
     thresholdSec: 5
