@@ -23,7 +23,8 @@
 + HBase client Java API
 
 ### Properties
-Before compiling, modify the properties file with appropriate parameters,
+Before compiling, modify the properties file, `src/main/resources/application.yml` with appropriate parameters,
+
 ```json
 spring:
   profiles: dev
@@ -43,7 +44,7 @@ my:
     column: "sanity_col"
 ```
 
-**Update these values as appropriate for your environment
+**Update these values as appropriate for your environment**
 
 ### Compile
 Note: 
