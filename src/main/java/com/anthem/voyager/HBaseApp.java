@@ -50,7 +50,7 @@ public class HBaseApp {
             StopWatch watch = new StopWatch();
             watch.start();
 
-            LOGGER.info("From config:{} backpressure:{}", appConfig.getKrb(), appConfig.getBackpressure());
+            LOGGER.info("From datafile:{} outputDir:{}", appConfig.getData(), appConfig.getOutputDir());
 
             // The actual process
             processor.streamFile();
@@ -68,10 +68,14 @@ public class HBaseApp {
         }
     }
 
+    /**
+     * earlier , we were closing the executor service,
+     * service.executorService().shutdown();
+     * but no need, the app shuts down ok.
+     * @throws InterruptedException
+     */
     private void closeMe() throws InterruptedException {
         Thread.sleep(10000);
-//        service.executorService().shutdown();
-//        LOGGER.info("Concurreny Service shutdown issued, no new tasks allowed.");
         bus.stop();
     }
 }
