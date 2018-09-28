@@ -39,6 +39,7 @@ public class EventBus {
 //                                    dbInteraction.checkAndPutKeys(
 //                                            strings.stream().map(String::getBytes).collect(Collectors.toList()));
                                 }));
+
         compositeDisposable = new CompositeDisposable();
         compositeDisposable.add(subscription);
     }

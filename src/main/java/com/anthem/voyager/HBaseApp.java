@@ -2,6 +2,7 @@ package com.anthem.voyager;
 
 
 import com.anthem.voyager.config.AppConfig;
+import com.anthem.voyager.config.AppProperties;
 import com.anthem.voyager.service.ConcurrencyService;
 import com.anthem.voyager.service.EventBus;
 import com.anthem.voyager.service.FileProcessor;
@@ -53,7 +54,7 @@ public class HBaseApp {
 
             // The actual process
             processor.streamFile();
-
+            Thread.sleep(AppProperties.SLEEP_AFTER_STREAM_MS);
 
             closeMe();
             watch.stop();
@@ -69,8 +70,8 @@ public class HBaseApp {
 
     private void closeMe() throws InterruptedException {
         Thread.sleep(10000);
-        service.executorService().shutdown();
-        LOGGER.info("Concurreny Service shutdown issued, no new tasks allowed.");
+//        service.executorService().shutdown();
+//        LOGGER.info("Concurreny Service shutdown issued, no new tasks allowed.");
         bus.stop();
     }
 }
