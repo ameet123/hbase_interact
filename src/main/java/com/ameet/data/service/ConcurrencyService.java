@@ -1,7 +1,7 @@
-package com.anthem.voyager.service;
+package com.ameet.data.service;
 
-import com.anthem.voyager.config.AppConfig;
-import com.anthem.voyager.config.AppProperties;
+import com.ameet.data.config.AppConfig;
+import com.ameet.data.config.AppProperties;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

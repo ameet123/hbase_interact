@@ -1,7 +1,7 @@
-package com.anthem.voyager.service;
+package com.ameet.data.service;
 
-import com.anthem.voyager.api.QualityApi;
-import com.anthem.voyager.config.AppConfig;
+import com.ameet.data.api.QualityApi;
+import com.ameet.data.config.AppConfig;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -14,6 +14,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * this is where an event bus is designed and instantiated.
+ * we establish a publish subscribe bus and on receiving a message, we spawn the task on one of the threads available
+ * to us. So the heavy processing is off loaded, allowing the system to consume ever present messages.
+ */
 @Service
 public class EventBus {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventBus.class);
@@ -21,8 +26,7 @@ public class EventBus {
     private PublishSubject<String> safeSource;
 
     @Autowired
-    public EventBus(ConcurrencyService concurrencyService, DBInteraction dbInteraction, AppConfig appConfig,
-                    QualityApi qualityApi) {
+    public EventBus(ConcurrencyService concurrencyService, AppConfig appConfig, QualityApi qualityApi) {
         LOGGER.info("Bucketing messages:{} at threshold:{} sec.",
                 appConfig.getBucketSize(), appConfig.getThresholdSec());
         safeSource = PublishSubject.create();
@@ -36,8 +40,6 @@ public class EventBus {
                                 subscribe(strings -> {
                                     LOGGER.info("\t>>Size of message:{}", strings.size());
                                     qualityApi.ingest(strings);
-//                                    dbInteraction.checkAndPutKeys(
-//                                            strings.stream().map(String::getBytes).collect(Collectors.toList()));
                                 }));
 
         compositeDisposable = new CompositeDisposable();
@@ -51,6 +53,5 @@ public class EventBus {
     public void stop() {
         LOGGER.info(">>Stopping the bus");
         compositeDisposable.clear();
-//        compositeDisposable.dispose();
     }
 }

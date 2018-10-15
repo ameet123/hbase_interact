@@ -1,11 +1,10 @@
-package com.anthem.voyager;
+package com.ameet.data;
 
 
-import com.anthem.voyager.config.AppConfig;
-import com.anthem.voyager.config.AppProperties;
-import com.anthem.voyager.service.ConcurrencyService;
-import com.anthem.voyager.service.EventBus;
-import com.anthem.voyager.service.FileProcessor;
+import com.ameet.data.config.AppConfig;
+import com.ameet.data.config.AppProperties;
+import com.ameet.data.service.EventBus;
+import com.ameet.data.service.FileProcessor;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,15 +24,13 @@ public class HBaseApp {
     private static final Logger LOGGER = LoggerFactory.getLogger(HBaseApp.class);
     private final FileProcessor processor;
     private final EventBus bus;
-    private final ConcurrencyService service;
     private final AppConfig appConfig;
     private Random rand = new Random();
 
     @Autowired
-    public HBaseApp(FileProcessor processor, EventBus bus, ConcurrencyService service, AppConfig appConfig) {
+    public HBaseApp(FileProcessor processor, EventBus bus, AppConfig appConfig) {
         this.processor = processor;
         this.bus = bus;
-        this.service = service;
         this.appConfig = appConfig;
     }
 

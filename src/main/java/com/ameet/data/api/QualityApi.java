@@ -1,8 +1,8 @@
-package com.anthem.voyager.api;
+package com.ameet.data.api;
 
-import com.anthem.voyager.StringProcessor;
-import com.anthem.voyager.config.AppConfig;
-import com.anthem.voyager.service.DBInteraction;
+import com.ameet.data.config.AppConfig;
+import com.ameet.data.service.DBInteraction;
+import com.ameet.data.service.StringProcessor;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;

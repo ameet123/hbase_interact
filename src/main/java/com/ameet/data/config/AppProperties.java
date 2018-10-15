@@ -1,4 +1,4 @@
-package com.anthem.voyager.config;
+package com.ameet.data.config;
 
 public class AppProperties {
 

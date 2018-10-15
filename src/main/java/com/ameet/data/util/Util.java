@@ -1,4 +1,4 @@
-package com.anthem.voyager.util;
+package com.ameet.data.util;
 
 public class Util {
     public static int byteArrayToInt(byte[] b) {

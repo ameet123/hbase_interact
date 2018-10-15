@@ -1,14 +1,13 @@
-package com.anthem.voyager.service;
+package com.ameet.data.service;
 
 
-import com.anthem.voyager.config.AppConfig;
-import com.anthem.voyager.config.AppProperties;
+import com.ameet.data.config.AppConfig;
+import com.ameet.data.config.AppProperties;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +23,7 @@ import java.util.stream.Collectors;
 @Service
 public class DBInteraction {
     private static final Logger LOGGER = LoggerFactory.getLogger(DBInteraction.class);
-    private Table voyagerDQTable;
+    private Table myHBaseTable;
 
     /**
      * do enable kerberos debug, add this
@@ -47,8 +46,8 @@ public class DBInteraction {
             UserGroupInformation.loginUserFromKeytab(appConfig.getUser(), appConfig.getKeytab());
             Connection conn = ConnectionFactory.createConnection(conf);
             LOGGER.debug("Successfully created connection");
-            voyagerDQTable = conn.getTable(TableName.valueOf(appConfig.getTable()));
-            LOGGER.info("Table handle:{}", voyagerDQTable.getTableDescriptor().getNameAsString());
+            myHBaseTable = conn.getTable(TableName.valueOf(appConfig.getTable()));
+            LOGGER.info("Table handle:{}", myHBaseTable.getTableDescriptor().getNameAsString());
         } catch (IOException e) {
             LOGGER.error("Err connecting to Hbase", e);
             throw new RuntimeException(e);
@@ -90,7 +89,7 @@ public class DBInteraction {
         StopWatch stopwatch = new StopWatch();
         stopwatch.start();
         try {
-            voyagerDQTable.put(puts);
+            myHBaseTable.put(puts);
         } catch (IOException e) {
             LOGGER.error("Err: Inserting records");
         }
@@ -108,7 +107,7 @@ public class DBInteraction {
         boolean[] existList;
         List<Integer> duplicateRecIndexes = new ArrayList<>();
         try {
-            existList = voyagerDQTable.existsAll(gets);
+            existList = myHBaseTable.existsAll(gets);
             stopwatch.stop();
             for (int i = 0; i < existList.length; i++) {
                 if (!existList[i]) {

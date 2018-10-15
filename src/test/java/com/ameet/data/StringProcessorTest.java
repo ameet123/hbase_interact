@@ -1,6 +1,7 @@
-package com.anthem.voyager;
+package com.ameet.data;
 
-import com.anthem.voyager.util.Util;
+import com.ameet.data.util.Util;
+import com.ameet.data.service.StringProcessor;
 import org.apache.hadoop.hbase.util.MurmurHash3;
 import org.junit.Assert;
 import org.junit.Test;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.anthem.voyager.config.AppProperties.FIELD_WIDTHS;
+import static com.ameet.data.config.AppProperties.FIELD_WIDTHS;
 
 public class StringProcessorTest {
     private static final String SAMPLE_LINE = "418232181906244849000999            3INGACC01          8302GHINGGRP03 " +
