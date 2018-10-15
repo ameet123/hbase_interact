@@ -40,7 +40,7 @@ my:
     thresholdSec: 5
     backpressure: 75
     threadPrefix: "hbaseRx-%d"
-    user: "AF55267@DEVAD.WELLPOINT.COM"
+    user: "AF55267@DEVAD.AMEET.COM"
     column: "sanity_col"
 ```
 
@@ -68,7 +68,8 @@ java -Dspring.profiles.active=dev  -jar build/libs/HBaseInteract-0.1.0.jar
 
 #### Generate sample data
 ```python
-with open('C:\\Users\\AF55267\\Documents\\anthem\\source\\hbase_interact\\src\\main\\resources\\sample_10k_hbase.csv','+w') as f:
+with open('C:\\Users\\ameet\\Documents\\source\\hbase_interact\\src\\main\\resources\\sample_10k_hbase.csv',
+'+w') as f:
     for i in range(10000):
         f.write(''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(40))+"\n")
 ```
@@ -77,6 +78,6 @@ with open('C:\\Users\\AF55267\\Documents\\anthem\\source\\hbase_interact\\src\\m
 Clean out the HBase table,
 ```sql
 hbase shell
-> truncate 'dv_hb_bdfrawz_nogbd_r1a_wh:voyager_dq'
+> truncate 'ameet_db:ameet_dq'
 ```
 
