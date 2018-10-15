@@ -58,6 +58,7 @@ cd hbase_interact
 ```
 
 ### Run
+Imp*: Put `hbase-site.xml` in classpath or in src/main/resources
 ```bash
 java -Dspring.profiles.active=dev  -jar build/libs/HBaseInteract-0.1.0.jar
 ```
